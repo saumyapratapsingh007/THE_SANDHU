@@ -1,0 +1,38 @@
+.filter-defs{position:absolute;pointer-events:none}
+.vinyl{display:none}
+.counter{font-variant-numeric:tabular-nums}
+.sr-value{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.bar{isolation:isolate;position:relative;overflow:hidden;border-radius:3px;background:#b7a477;box-shadow:inset 0 0 0 1px #ffe6a899}
+.bar.previous{background:#959889}
+.bar>span{z-index:1}
+.fluid{position:absolute;inset:0;overflow:hidden;z-index:0;background:linear-gradient(0deg,#bd9145,#e0ba70 60%,#f1dba2);transform-origin:left}
+.previous .fluid{background:linear-gradient(0deg,#858977,#a3a893 64%,#c8ccb9)}
+.fluid::after,.fluid::before{content:"";position:absolute;left:-12%;width:124%;height:18px;top:-3px;background:radial-gradient(ellipse at 50% 0%,#51452755 0 64%,transparent 67%) 0 0 / 86px 14px repeat-x}
+.fluid::after{top:-5px;opacity:.45;background-size:117px 15px}
+@media(prefers-reduced-motion:no-preference){
+.has-motion .cover h1{opacity:0;transform-origin:0 70%}
+#portrait,#bipolar figure img{transition:transform .42s cubic-bezier(.2,.75,.2,1);transform:perspective(950px) translate3d(var(--dx,0px),var(--dy,0px),0) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1.035)}
+#bipolar figure img{box-shadow:calc(var(--dx,0px) * -1) 15px 32px #0004}
+.voice-stage{position:relative}
+.voice-ready h2{opacity:0}
+.voice-ready.is-playing h2{animation:voice-in .95s .12s both}
+.waveform{position:absolute;inset:0;display:flex;gap:1%;align-items:center;pointer-events:none;opacity:0}
+.waveform i{flex:1;height:var(--peak);background:var(--gold);border-radius:3px;transform:scaleY(.04)}
+.is-playing .waveform{animation:wave-pass 1.1s both}
+.is-playing .waveform i{animation:wave-pulse .68s var(--lag) both}
+.bar.charging .fluid{animation:pour 1.25s cubic-bezier(.26,.65,.22,1) both}
+.bar.charging .fluid::before,.bar.charging .fluid::after{animation:surface 5s ease-in-out infinite alternate}
+.bar.charging .fluid::after{animation-direction:alternate-reverse;animation-duration:6.5s}
+@keyframes pour{from{transform:scaleX(.005)}to{transform:scaleX(1)}}
+@keyframes surface{to{transform:translateX(8%) translateY(3px)}}
+@keyframes voice-in{0%{opacity:0;clip-path:inset(0 100% 0 0);filter:blur(6px)}100%{opacity:1;clip-path:inset(0);filter:blur(0)}}
+@keyframes wave-pass{0%,100%{opacity:0}20%,52%{opacity:.8}}
+@keyframes wave-pulse{0%,100%{transform:scaleY(.04)}40%{transform:scaleY(1)}70%{transform:scaleY(.3)}}
+}
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+html.vinyl-active,html.vinyl-active *{cursor:none}
+.vinyl{display:block;position:fixed;pointer-events:none;z-index:99999;top:0;left:0;opacity:0;width:25px;height:25px;margin:-12px;filter:drop-shadow(0 1px 3px #0008)}
+.vinyl-active .vinyl{opacity:1}
+.vinyl::before{content:"";position:absolute;inset:0;border:1px solid #e1c58f;border-radius:50%;background:radial-gradient(circle,#151610 0 5%,#e3be75 6% 23%,transparent 24%),repeating-radial-gradient(circle,transparent 0 2px,#eee2 2.5px 3px),conic-gradient(#121310,#585847 32deg,#191a16 63deg,#111 160deg,#69634d 212deg,#161714 240deg,#121310);animation:vinyl-spin 1.45s linear infinite}
+@keyframes vinyl-spin{to{transform:rotate(360deg)}}
+}
