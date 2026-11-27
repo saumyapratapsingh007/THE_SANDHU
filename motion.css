@@ -9,7 +9,7 @@
 .previous .fluid{background:linear-gradient(0deg,#858977,#a3a893 64%,#c8ccb9)}
 .fluid::after,.fluid::before{content:"";position:absolute;left:-12%;width:124%;height:18px;top:-3px;background:radial-gradient(ellipse at 50% 0%,#51452755 0 64%,transparent 67%) 0 0 / 86px 14px repeat-x}
 .fluid::after{top:-5px;opacity:.45;background-size:117px 15px}
-@media(prefers-reduced-motion:no-preference){
+@media all{
 .has-motion .cover h1{opacity:0;transform-origin:0 70%}
 #portrait,#bipolar figure img{transition:transform .42s cubic-bezier(.2,.75,.2,1);transform:perspective(950px) translate3d(var(--dx,0px),var(--dy,0px),0) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) scale(1.035)}
 #bipolar figure img{box-shadow:calc(var(--dx,0px) * -1) 15px 32px #0004}
@@ -29,10 +29,35 @@
 @keyframes wave-pass{0%,100%{opacity:0}20%,52%{opacity:.8}}
 @keyframes wave-pulse{0%,100%{transform:scaleY(.04)}40%{transform:scaleY(1)}70%{transform:scaleY(.3)}}
 }
-@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+@media all{
 html.vinyl-active,html.vinyl-active *{cursor:none}
 .vinyl{display:block;position:fixed;pointer-events:none;z-index:99999;top:0;left:0;opacity:0;width:25px;height:25px;margin:-12px;filter:drop-shadow(0 1px 3px #0008)}
 .vinyl-active .vinyl{opacity:1}
 .vinyl::before{content:"";position:absolute;inset:0;border:1px solid #e1c58f;border-radius:50%;background:radial-gradient(circle,#151610 0 5%,#e3be75 6% 23%,transparent 24%),repeating-radial-gradient(circle,transparent 0 2px,#eee2 2.5px 3px),conic-gradient(#121310,#585847 32deg,#191a16 63deg,#111 160deg,#69634d 212deg,#161714 240deg,#121310);animation:vinyl-spin 1.45s linear infinite}
 @keyframes vinyl-spin{to{transform:rotate(360deg)}}
 }
+.replay{opacity:0;translate:0 28px;filter:blur(5px);transition:opacity .55s ease,translate .65s cubic-bezier(.2,.7,.2,1),filter .55s ease}
+.replay.on-screen{opacity:1;translate:0 0;filter:blur(0)}
+.counter{display:inline-block;opacity:0;transition:opacity .35s}
+.counter.counting-visible{opacity:1}
+#portrait,#bipolar figure img{animation:image-sway 6s ease-in-out infinite alternate;will-change:transform}
+#bipolar figure{perspective:1000px}
+#bipolar figure img{animation-delay:-2.8s}
+@keyframes image-sway{from{translate:0 -7px;rotate:-.65deg}to{translate:0 7px;rotate:.65deg}}
+.voice-ready h2{transition:opacity .45s,filter .45s}
+.voice-ready:not(.is-playing) h2{opacity:0;filter:blur(8px)}
+.bar .fluid{transform:scaleX(.01);transition:transform .6s ease}
+.bar.charging .fluid{transform:scaleX(1)}
+.motion-toggle{background:transparent;color:var(--cream);border:1px solid var(--rule);padding:8px 12px;font:12px Consolas,monospace;cursor:pointer}
+footer{flex-wrap:wrap;gap:24px}
+.socials{display:flex;flex-wrap:wrap;gap:14px 28px;margin-bottom:40px}
+.socials a{border-bottom:1px solid var(--rule);padding:10px 0}
+.socials a:hover{color:var(--gold)}
+.footer-details{flex-basis:100%;border-top:1px solid var(--rule);padding-top:28px}
+.footer-details small{max-width:85ch}
+.motion-paused .replay,.motion-paused .counter,.motion-paused .voice-ready h2{opacity:1!important;filter:none!important;translate:none!important}
+.motion-paused *,.motion-paused *::before,.motion-paused *::after{animation:none!important;transition:none!important}
+.motion-paused #portrait,.motion-paused #bipolar figure img{transform:none!important;translate:none!important;rotate:none!important}
+.motion-paused .fluid{transform:scaleX(1)}
+.motion-paused .vinyl{display:none}
+@media(max-width:800px){#bipolar figure img{max-width:100%}.vinyl{width:25px;height:25px}}

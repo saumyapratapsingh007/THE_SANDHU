@@ -1,6 +1,5 @@
 (() => {
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
+  const reduced = {matches:false};
   const root = document.documentElement;
   const cover = document.querySelector("#cover");
   const title = cover.querySelector("h1");
@@ -23,20 +22,19 @@
   }
   addEventListener("scroll",queueReveal,{passive:true});
   addEventListener("resize",queueReveal);
-  reduced.addEventListener("change",queueReveal);
   revealTitle();
 
   for (const [area, image] of [[cover,document.querySelector("#portrait")],
     [document.querySelector("#bipolar figure"),document.querySelector("#bipolar figure img")]]) {
     area.addEventListener("pointermove", event => {
-      if (!finePointer.matches || reduced.matches) return;
+      if (event.pointerType === "touch" || reduced.matches) return;
       const box = area.getBoundingClientRect();
       const x = (event.clientX-box.left)/box.width*2-1;
       const y = (event.clientY-box.top)/box.height*2-1;
-      image.style.setProperty("--dx",x*10+"px");
-      image.style.setProperty("--dy",y*8+"px");
-      image.style.setProperty("--rx",-y*4+"deg");
-      image.style.setProperty("--ry",x*5+"deg");
+      image.style.setProperty("--dx",x*24+"px");
+      image.style.setProperty("--dy",y*18+"px");
+      image.style.setProperty("--rx",-y*8+"deg");
+      image.style.setProperty("--ry",x*10+"deg");
     },{passive:true});
     area.addEventListener("pointerleave",() => {
       for (const name of ["--dx","--dy","--rx","--ry"]) image.style.removeProperty(name);
@@ -49,7 +47,7 @@
   document.body.append(vinyl);
   const hideCursor = () => root.classList.remove("vinyl-active");
   document.addEventListener("pointermove",e => {
-    if (!finePointer.matches || reduced.matches || e.pointerType==="touch") return hideCursor();
+    if (reduced.matches || e.pointerType==="touch") return hideCursor();
     vinyl.style.transform = `translate3d(${e.clientX}px,${e.clientY}px,0)`;
     root.classList.add("vinyl-active");
   },{passive:true});
@@ -73,11 +71,10 @@
   }
   stage.append(wave);
   const entrances = new IntersectionObserver(entries=>{
-    for (const entry of entries) if (entry.isIntersecting) {
-      entry.target.classList.add(entry.target===stage ? "is-playing" : "charging");
-      entrances.unobserve(entry.target);
+    for (const entry of entries) {
+      entry.target.classList.toggle(entry.target===stage ? "is-playing" : "charging",entry.isIntersecting);
     }
-  },{threshold:.15});
+  },{rootMargin:"-7% 0px -7% 0px",threshold:0});
   entrances.observe(stage);
   for (const bar of document.querySelectorAll(".bar")) {
     const liquid=document.createElement("i");
@@ -88,21 +85,27 @@
   }
 
   // Keep the original formatted number available to assistive technology.
+  const counterFrames = new WeakMap();
   const counters = new IntersectionObserver(entries=>{
-    for (const {target, isIntersecting} of entries) if(isIntersecting) {
-      counters.unobserve(target);
+    for (const {target, isIntersecting} of entries) {
+      cancelAnimationFrame(counterFrames.get(target));
       const final = target.dataset.final;
+      target.classList.toggle("counting-visible",isIntersecting);
+      if (!isIntersecting) {
+        target.textContent=final.replace(/\d/g,"0");
+        continue;
+      }
       const precision = (final.split(".")[1] || "").length;
       const start = performance.now();
       function tick(time) {
         if (!target.isConnected) return;
         const t = reduced.matches ? 1 : Math.min(1,(time-start)/850);
         target.textContent = t===1 ? final : (Number(final)*(1-(1-t)**3)).toFixed(precision).padStart(final.length,"0");
-        if (t<1) requestAnimationFrame(tick);
+        if (t<1) counterFrames.set(target,requestAnimationFrame(tick));
       }
-      requestAnimationFrame(tick);
+      counterFrames.set(target,requestAnimationFrame(tick));
     }
-  });
+  },{rootMargin:"-7% 0px -7% 0px"});
   function prepareNumbers(area) {
     const walker = document.createTreeWalker(area,NodeFilter.SHOW_TEXT);
     const nodes=[];
@@ -137,4 +140,26 @@
       if (!label.querySelector(".counter")) prepareNumbers(label);
     }).observe(label,{childList:true});
   }
+  const panels = document.querySelectorAll(".paper h2,.metrics article,.twins,.bar,figure,blockquote,.played");
+  const replay = new IntersectionObserver(entries=>{
+    for(const entry of entries) entry.target.classList.toggle("on-screen",entry.isIntersecting);
+  },{rootMargin:"-6% 0px -6% 0px"});
+  panels.forEach(panel=>{panel.classList.add("replay");replay.observe(panel);});
+  const pause=document.createElement("button");
+  pause.className="motion-toggle";
+  pause.textContent="Pause motion";
+  pause.setAttribute("aria-pressed","false");
+  pause.addEventListener("click",()=>{
+    reduced.matches=!reduced.matches;
+    root.classList.toggle("motion-paused",reduced.matches);
+    pause.textContent=reduced.matches?"Enable motion":"Pause motion";
+    pause.setAttribute("aria-pressed",String(reduced.matches));
+    hideCursor();
+    revealTitle();
+    if(reduced.matches) document.querySelectorAll(".counter").forEach(el=>{
+      cancelAnimationFrame(counterFrames.get(el));
+      el.textContent=el.dataset.final;
+    });
+  });
+  document.querySelector("footer").append(pause);
 })();
